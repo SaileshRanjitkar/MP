@@ -1,0 +1,138 @@
+.MODEL SMALL
+.CODE
+MOV AL,82H
+MOV DX,0E803H
+OUT DX,AL
+CALL CLR_ALL_FLR  
+AGAIN: CALL CHECK_FLR    
+CMP AL,0FFH       
+JE AGAIN
+SHR AL,01
+JC M01            
+CALL DELAY        
+CALL DELAY
+CALL CLR_GF
+JMP FINISH
+M01: SHR AL,01        	     
+JC M02                 	     
+MOV AL,0F0H
+MOV CX,03
+CALL MOVE_UP  	     
+CALL DELAY
+CALL DELAY
+CALL CLR_FF       	      
+MOV CX,03
+CALL MOVE_DOWN  	     
+JMP FINISH
+M02: SHR AL,01                           
+JC M03                                 
+MOV AL,0F0H
+MOV CX,06
+CALL MOVE_UP                  
+CALL DELAY
+CALL DELAY
+CALL CLR_SF                       
+MOV CX,06
+CALL MOVE_DOWN            
+JMP FINISH
+M03: MOV AL,0F0H
+MOV CX,09
+CALL MOVE_UP                    
+CALL DELAY
+CALL DELAY
+CALL CLR_TF                        
+MOV CX,09
+CALL MOVE_DOWN             
+FINISH: 
+CALL CLR_ALL_FLR          
+MOV AH,4CH                       
+INT 21H
+          
+MOVE_UP PROC NEAR       
+MOV DX,0E800H                  
+L1:  INC AL                                 
+CALL DELAY                       
+OUT DX,AL
+LOOP L1                             
+CALL DELAY
+CALL DELAY
+RET
+MOVE_UP ENDP
+
+
+MOVE_DOWN PROC NEAR              
+MOV DX,0E800H                                   
+L2: DEC AL                                                 
+CALL DELAY                                        
+OUT DX,AL
+LOOP L2                                               
+CALL DELAY
+CALL DELAY
+RET
+MOVE_DOWN ENDP
+
+
+CHECK_FLR PROC NEAR                                   
+          MOV DX,0E801H                                        
+          IN AL,DX                                                   
+          OR AL,0F0H                                                
+          RET
+CHECK_FLR ENDP
+
+
+CLR_ALL_FLR PROC NEAR
+            MOV AL,0F0H
+            MOV DX,0E800H
+            OUT DX,AL
+            RET
+CLR_ALL_FLR ENDP
+
+CLR_GF PROC NEAR                            
+          MOV DX,0E800H                         
+          AND AL,0FH
+          OR AL,0E0H                                   
+          OUT DX,AL                                       
+          RET
+CLR_GF ENDP
+
+CLR_FF PROC NEAR                        
+          MOV DX,0E800H                               
+          AND AL,0FH
+          OR AL,0D0H                                      
+          OUT DX,AL                                       
+          RET
+CLR_FF ENDP
+
+
+CLR_SF PROC NEAR                               
+          MOV DX,0E800H                               
+          AND AL,0FH
+          OR AL,0B0H                                     
+          OUT DX,AL                                        
+          RET
+CLR_SF ENDP
+
+CLR_TF PROC NEAR                                
+          MOV DX,0E800H                                  
+          AND AL,0FH
+          OR AL,70H                                          
+          OUT DX,AL                                            
+          RET
+CLR_TF ENDP
+
+DELAY PROC NEAR   
+          PUSH AX
+          PUSH CX
+          PUSH DX
+          MOV CX,3FFFH
+      L4: MOV AX,0FFFFH
+      L3: DEC AX
+          JNZ L3
+          LOOP L4
+          POP DX
+          POP CX
+          POP AX
+          RET
+DELAY  ENDP
+          
+END
